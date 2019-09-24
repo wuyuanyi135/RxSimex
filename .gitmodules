@@ -1,0 +1,9 @@
+[submodule "RxCpp"]
+	path = include/RxCpp
+	url = https://github.com/ReactiveX/RxCpp
+[submodule "include/xtensor"]
+	path = include/xtensor
+	url = https://github.com/QuantStack/xtensor
+[submodule "include/xtl"]
+	path = include/xtl
+	url = https://github.com/QuantStack/xtl
