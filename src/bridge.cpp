@@ -140,7 +140,7 @@ extern "C" void mdlOutputs(SimStruct *S, int_T tid) {
         auto &p = block->input_ports[i];
         if (p->direct_feed_through) {
             auto input_ptr = ssGetInputPortSignalPtrs(S, i);
-            block->input_ports[i]->from(*input_ptr);
+            block->input_ports[i]->from(input_ptr);
         }
     }
 
@@ -176,8 +176,7 @@ extern "C" void mdlUpdate(SimStruct *S, int_T tid) {
         auto &p = block->input_ports[i];
         if (!p->direct_feed_through) {
             auto input_ptr = ssGetInputPortSignalPtrs(S, i);
-            auto width = ssGetInputPortWidth(S, i);
-            block->input_ports[i]->from(const_cast<void *>(*input_ptr), width);
+            block->input_ports[i]->from(input_ptr);
         }
     }
     block->on_update();

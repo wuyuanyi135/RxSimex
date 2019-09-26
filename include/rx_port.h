@@ -27,7 +27,11 @@ class port_base {
 
  public:
   virtual void to(void *dest, size_t size = -1) = 0;
-  virtual void from(const void *const src, size_t size = -1) = 0;
+
+  ///
+  /// \param src input signal ptr. Note that the pointer is doubled for non-contiguous data.
+  /// \param size
+  virtual void from(const void *const* src, size_t size = -1) = 0;
   virtual void on_dimension_update() = 0;
   virtual size_t get_width() = 0;
 };
@@ -62,13 +66,15 @@ class port : public port_base {
       std::lock_guard lock(mutex);
       memcpy(dest, data.data(), size);
   }
-  void from(const void *const src, size_t size = -1) override {
+  void from(const void *const *src, size_t size = -1) override {
       if (size == -1) {
           size = get_width();
       }
       assert(size <= data.size() * sizeof(T));
       std::lock_guard lock(mutex);
-      memcpy(data.data(), src, size);
+      for (size_t i = 0; i < size; i ++) {
+          data.data_element(i) = *static_cast<const T*>(src[i]);
+      }
       data_updated.get_subscriber().on_next(data);
   }
   size_t get_width() override {
