@@ -45,5 +45,12 @@ int main() {
     // no element?
     auto aaa = xt::xarray<double>();
     std::cout <<aaa.size() << std::endl;
+
+    // data crash
+    auto data = xt::xarray<double>({1,2,3});
+    *data.data() = 9;
+    *(data.data()+1) = 57;
+    *(data.data()+2)= 59;
+    std::cout << data << std::endl;
     return 0;
 }

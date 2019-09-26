@@ -66,13 +66,13 @@ class port : public port_base {
       std::lock_guard lock(mutex);
       memcpy(dest, data.data(), size);
   }
-  void from(const void *const *src, size_t size = -1) override {
-      if (size == -1) {
-          size = get_width();
+  void from(const void *const *src, size_t elements = -1) override {
+      if (elements == -1) {
+          elements = data.size();
       }
-      assert(size <= data.size() * sizeof(T));
+      assert(elements <= data.size());
       std::lock_guard lock(mutex);
-      for (size_t i = 0; i < size; i ++) {
+      for (size_t i = 0; i < elements; i ++) {
           data.data_element(i) = *static_cast<const T*>(src[i]);
       }
       data_updated.get_subscriber().on_next(data);

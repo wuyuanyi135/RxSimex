@@ -4,6 +4,9 @@
   <component name="CidrRootsConfiguration">
     <libraryRoots>
       <file path="$PROJECT_DIR$/include/RxCpp" />
+      <file path="$PROJECT_DIR$/include/fmt" />
+      <file path="$PROJECT_DIR$/include/xtensor" />
+      <file path="$PROJECT_DIR$/include/xtl" />
     </libraryRoots>
   </component>
   <component name="JavaScriptSettings">
