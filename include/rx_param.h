@@ -27,7 +27,7 @@ class rx_scalar_param : public rx_param_base {
  protected:
   mxClassID class_id;
  public:
-  rxcpp::subjects::behavior<T> parameter_updated;
+  rxcpp::subjects::behavior<T> parameter_updated{T()};
  public:
   explicit rx_scalar_param() {
       class_id = get_mx_class_id<T>();
@@ -40,8 +40,8 @@ class rx_scalar_param : public rx_param_base {
       }
 
       // expected scalar
-      auto data = reinterpret_cast<T *>(mxGetData(var));
-      parameter_updated.get_subscriber().on_next(data);
+      auto data = static_cast<T *>(mxGetData(var));
+      parameter_updated.get_subscriber().on_next(*data);
 
       return true;
   }

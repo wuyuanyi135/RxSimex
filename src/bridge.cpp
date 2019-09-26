@@ -26,6 +26,8 @@ void mdlCheckParameters(SimStruct *S) {
 
 extern "C" void mdlInitializeSizes(SimStruct *S) {
     auto block = simex::rx_block::get_instance(S, true);
+    ssSetOptions(S, block->options);
+
     ssSetNumSFcnParams(S, static_cast<int_T>(block->dialog_params.size()));
     if (ssGetNumSFcnParams(S) == ssGetSFcnParamsCount(S)) {
         mdlCheckParameters(S);
@@ -36,11 +38,12 @@ extern "C" void mdlInitializeSizes(SimStruct *S) {
         throw std::invalid_argument("Number of parameter mismatch"); /* Parameter mismatch reported by the Simulink engine*/
     }
 
-    block->on_initial_parameter_processed();
-
     for (int i = 0; i < block->dialog_params.size(); i++) {
         ssSetSFcnParamTunable(S, i, block->dialog_params[i]->tunable ? SS_PRM_TUNABLE : SS_PRM_NOT_TUNABLE);
     }
+
+    block->on_initial_parameter_processed();
+
 
     if (block->allow_multi_dimension) {
         ssAllowSignalsWithMoreThan2D(S);
@@ -110,7 +113,6 @@ extern "C" void mdlInitializeSizes(SimStruct *S) {
             ssSetOutputPortDimensionInfo(S, i, &di);
         }
         ssSetNumSampleTimes(S, 1);
-        ssSetOptions(S, block->options);
     }
 }
 

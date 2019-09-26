@@ -10,6 +10,7 @@ class simple : public simex::rx_block {
   rxcpp::observe_on_one_worker background_thread{rxcpp::observe_on_new_thread()};
 
   explicit simple(SimStruct *s) : rx_block(s) {
+      param_gain = register_scalar_parameter<double>("gain", true);
   }
   void on_initial_parameter_processed() override {
       rx_block::on_initial_parameter_processed();
@@ -43,11 +44,16 @@ class simple : public simex::rx_block {
       in1->data_updated.get_observable().subscribe_on(background_thread).subscribe(
           subscriptions,
           [this](xt::xarray<double> in1_data) {
-              std::stringstream sstream;
-              sstream << in1_data;
-              log("info", sstream.str());
-              out3->data_update.get_subscriber().on_next(xt::sum<double>(in1_data));
+            std::stringstream sstream;
+            sstream << in1_data;
+            log("info", sstream.str());
+              out3->data_update.get_subscriber().on_next(xt::sum<double>(in1_data) * param_gain->parameter_updated.get_value());
           }
+      );
+
+      param_gain->parameter_updated.get_observable().subscribe(
+          subscriptions,
+          [&](double val){log("info", fmt::format("Gain updated: {}", val));}
       );
   }
 
@@ -55,6 +61,7 @@ class simple : public simex::rx_block {
   std::shared_ptr<simex::port<double>> out1;
   std::shared_ptr<simex::port<double>> out2;
   std::shared_ptr<simex::port<double>> out3;
+  std::shared_ptr<simex::rx_scalar_param<double>> param_gain;
 };
 
 std::shared_ptr<simex::rx_block> simex::rx_block::create_block(SimStruct *S) {
