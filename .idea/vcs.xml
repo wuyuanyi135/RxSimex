@@ -2,6 +2,10 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/RxCpp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/RxCpp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/RxCpp/ext/catch" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/fmt" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/xtensor" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/xtl" vcs="Git" />
   </component>
 </project>

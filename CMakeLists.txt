@@ -11,6 +11,7 @@ include_directories(include)
 include_directories(include/RxCpp/Rx/v2/src/rxcpp)
 include_directories(include/xtensor/include)
 include_directories(include/xtl/include)
+include_directories(include/fmt/include)
 include_directories(${Matlab_INCLUDE_DIRS})
 include_directories(${Simulink_DIR}/include)
 
@@ -21,6 +22,9 @@ if (WIN32)
 endif ()
 
 file(GLOB_RECURSE RXSIMEX_SOURCES src/*.c src/*.cpp)
+file(GLOB FMT_SOURCES include/fmt/src/*.cc)
+
+set(_SOURCES ${RXSIMEX_SOURCES} ${FMT_SOURCES})
 
 if (${ENABLE_EXAMPLES})
     file(GLOB EXAMPLE_DIRS LIST_DIRECTORIES true examples/*)
@@ -31,3 +35,5 @@ if (${ENABLE_EXAMPLES})
         endif ()
     endforeach ()
 endif ()
+
+add_executable(playground playground.cpp ${FMT_SOURCES})

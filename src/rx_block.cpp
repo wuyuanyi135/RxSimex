@@ -3,3 +3,4 @@
 //
 
 #include "rx_block.h"
+std::shared_ptr<simex::rx_block> simex::rx_block::instance;
