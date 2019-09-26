@@ -122,6 +122,7 @@ class rx_block {
   static std::shared_ptr<rx_block> instance;
   static std::shared_ptr<rx_block> get_instance(SimStruct *S, bool create_new = false) {
       if (create_new) {
+          destory_instance();
           instance = create_block(S);
       }
       return instance;
