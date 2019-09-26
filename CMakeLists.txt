@@ -35,5 +35,3 @@ if (${ENABLE_EXAMPLES})
         endif ()
     endforeach ()
 endif ()
-
-add_executable(playground playground.cpp ${FMT_SOURCES})
