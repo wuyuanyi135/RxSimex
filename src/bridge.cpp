@@ -71,7 +71,7 @@ extern "C" void mdlInitializeSizes(SimStruct *S) {
                 assert (ip->dims(i) >= 0);
                 dims[i] = ip->dims(i);
             }
-            di.width = xt::prod(ip->dims)(0);
+            di.width = ip->get_num_elements();
             di.numDims = size;
             di.dims = dims;
             ssSetInputPortDimensionInfo(S, i, &di);
@@ -104,7 +104,7 @@ extern "C" void mdlInitializeSizes(SimStruct *S) {
                 dims[i] = op->dims(i);
             }
 
-            di.width = xt::prod(op->dims)(0);
+            di.width = op->get_num_elements();
             di.numDims = sz;
             di.dims = dims;
             ssSetOutputPortDimensionInfo(S, i, &di);

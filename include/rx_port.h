@@ -34,6 +34,7 @@ class port_base {
   virtual void from(const void *const* src, size_t size = -1) = 0;
   virtual void on_dimension_update() = 0;
   virtual size_t get_width() = 0;
+  virtual size_t get_num_elements() = 0;
 };
 
 template<typename T>
@@ -78,7 +79,7 @@ class port : public port_base {
       data_updated.get_subscriber().on_next(data);
   }
   size_t get_width() override {
-      return sizeof(T) * xt::prod(dims)(0);
+      return sizeof(T) * get_num_elements();
   }
   void on_dimension_update() override {
       std::lock_guard lock(mutex);
@@ -86,6 +87,9 @@ class port : public port_base {
           return;
       }
       data = xt::zeros<T>(dims);
+  }
+  size_t get_num_elements() override {
+      return xt::prod(dims)(0);
   }
  public:
   rxcpp::subjects::subject<ArrayT> data_updated{};
