@@ -2,6 +2,17 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/RxCpp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/HighFive" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/HighFive/deps/git-cmake-format" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/RxCpp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/RxCpp/ext/catch" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/brynet" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/fmt" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/msgpack-c" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/msgpack-c/external/boost/predef" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/msgpack-c/external/boost/preprocessor" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/xtensor" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/xtensor-io" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/xtl" vcs="Git" />
   </component>
 </project>

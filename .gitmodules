@@ -7,3 +7,18 @@
 [submodule "include/xtl"]
 	path = include/xtl
 	url = https://github.com/QuantStack/xtl
+[submodule "include/fmt"]
+	path = include/fmt
+	url = https://github.com/fmtlib/fmt
+[submodule "include/xtensor-io"]
+	path = include/xtensor-io
+	url = https://github.com/QuantStack/xtensor-io
+[submodule "include/HighFive"]
+	path = include/HighFive
+	url = https://github.com/BlueBrain/HighFive
+[submodule "include/brynet"]
+	path = include/brynet
+	url = https://github.com/wuyuanyi135/brynet
+[submodule "include/msgpack-c"]
+	path = include/msgpack-c
+	url = https://github.com/msgpack/msgpack-c

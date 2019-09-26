@@ -1,0 +1,13 @@
+{
+    "cmake.configureSettings": {
+        "Matlab_ROOT_DIR": "/home/wuyuanyi/MATLAB/R2019a",
+        "ENABLE_EXAMPLES": true,
+        "ENABLE_REMOTE": true
+    },
+    "cmake.configureOnOpen": true,
+    "files.associations": {
+        "chrono": "cpp",
+        "*.ipp": "cpp"
+    }, 
+    "C_Cpp.intelliSenseCacheSize": 0
+}
