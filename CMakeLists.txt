@@ -51,6 +51,3 @@ if (${ENABLE_EXAMPLES})
         endif ()
     endforeach ()
 endif ()
-
-add_executable(playground playground.cpp)
-target_link_libraries(playground PUBLIC ${_LIBS})

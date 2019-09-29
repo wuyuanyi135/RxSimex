@@ -34,30 +34,36 @@ struct port_info {
 };
 
 struct info {
-  block_info block_info;
-  std::vector<port_info> input_port_info;
-  std::vector<port_info> output_port_info;
+  block_info block;
+  std::vector<port_info> input_ports;
+  std::vector<port_info> output_ports;
 
-  MSGPACK_DEFINE_MAP(block_info, input_port_info, output_port_info);
+  MSGPACK_DEFINE_MAP(block, input_ports, output_ports);
 };
 
+struct port_value {
+  std::string name;
+  int id{};
+  std::string data;
+  MSGPACK_DEFINE_MAP(name, id, data);
+};
 }  // namespace message
 
 struct rx_data_buffer {
-  std::weak_ptr<TcpConnection> session;
+  std::shared_ptr<TcpConnection> session;
   std::shared_ptr<bytes> data;
   rx_data_buffer(TcpConnection::Ptr session, const char *buffer, size_t len)
-      : session(session->weak_from_this()), data(std::make_shared<bytes>()) {
+      : session(session), data(std::make_shared<bytes>()) {
     data->assign(buffer, buffer + len);
   }
 };
 
 struct rx_msgpack_object {
-  std::weak_ptr<TcpConnection> session;
+  std::shared_ptr<TcpConnection> session;
   std::shared_ptr<msgpack::object_handle> object_handle;
   rx_msgpack_object(std::shared_ptr<TcpConnection> session,
                     std::shared_ptr<msgpack::object_handle> object_handle)
-      : session(session->weak_from_this()), object_handle(object_handle) {}
+      : session(session), object_handle(object_handle) {}
 };
 class rx_remote_block : public rx_block {
  public:
@@ -65,7 +71,7 @@ class rx_remote_block : public rx_block {
 
  protected:
   TcpService::Ptr tcp_service_ptr;
-  std::vector<TcpConnection::Ptr> sessions;
+  std::vector<std::shared_ptr<brynet::net::TcpConnection>> sessions;
   brynet::net::wrapper::ListenerBuilder listener;
 
  public:
@@ -109,10 +115,14 @@ class rx_remote_block : public rx_block {
         memcpy(unpacker->buffer(), buffer, len);
         unpacker->buffer_consumed(len);
 
-        auto result = std::make_shared<msgpack::object_handle>();
-        while (unpacker->next(*result)) {
+        msgpack::object_handle result;
+        while (unpacker->next(result)) {
+          // object_handle get released after unpacker::next does not have any
+          // more element. It must be deep copied!
+          auto obj_handle_copy = std::make_shared<msgpack::object_handle>(
+              msgpack::clone(result.get()));
           auto sending_object =
-              std::make_shared<rx_msgpack_object>(session, result);
+              std::make_shared<rx_msgpack_object>(session, obj_handle_copy);
           msgpack_object_parsed  //
               .get_subscriber()  //
               .on_next(sending_object);
@@ -129,6 +139,7 @@ class rx_remote_block : public rx_block {
       });
 
       session_connected.get_subscriber().on_next(session);
+      sessions.emplace_back(session);
     };
 
     // configure socket listener
@@ -157,12 +168,22 @@ class rx_remote_block : public rx_block {
                    [&](std::shared_ptr<rx_msgpack_object> message) {
                      handle_incoming_message(std::move(message));
                    });
+
+    for (auto &ip : remote_input_port_registry) {
+      auto& registered_port = ip.second;
+    }
+  }
+  void on_update() override {
+    rx_block::on_update();
+    broadcast(make_value_update_report());
   }
 
   void on_terminate() override { rx_block::on_terminate(); }
 
-  void set_remote_accessible_port(std::shared_ptr<port_base> p, bool is_input) {
-    if (is_input) {
+  /// make the port remote accessible
+  /// \param p port reference
+  void set_remote_accessible_port(std::shared_ptr<port_base> p) {
+    if (p->port_type == port_base::INPUT) {
       assert(remote_input_port_registry.count(p->name) == 0);
       remote_input_port_registry[p->name] = p;
     } else {
@@ -172,17 +193,63 @@ class rx_remote_block : public rx_block {
   }
 
  protected:
-  // msgpack functions
-  void send_info(std::shared_ptr<TcpConnection> session) {
+  // remote communication functions
+
+  /// send packet to client
+  /// \param session
+  /// \param data
+  void send(std::shared_ptr<TcpConnection> session, std::string data) {
+    session->send(data.data(), data.length());
+  }
+  /// broadcast packet to all clients
+  /// \param data
+  void broadcast(std::string data) {
+    for (auto &session : sessions) {
+      send(session, data);
+    }
+  }
+
+  std::string make_value_update_report() {
+    std::stringstream ss;
+    msgpack::packer packer(ss);
+    packer.pack_array(2);
+    packer.pack("port_values");
+    std::vector<message::port_value> data;
+    for (auto &p : input_ports) {
+      message::port_value pv;
+      pv.id = p->id;
+      pv.name = p->name;
+      pv.data.resize(p->get_width());
+      p->to(pv.data.data());
+      data.emplace_back(pv);
+    }
+    packer.pack(data);
+    return ss.str();
+  }
+  /// generate error packet
+  /// \param error
+  /// \return
+  std::string make_error(std::string error) {
+    std::stringstream ss;
+    msgpack::packer packer(ss);
+    packer.pack_array(2);
+    packer.pack("error");
+    packer.pack(error);
+    return ss.str();
+  }
+
+  /// make information packet
+  /// \return
+  std::string make_info_response() {
     std::stringstream ss;
     msgpack::packer packer(ss);
     packer.pack_array(2);
     packer.pack("resp_info");
 
     message::info info;
-    info.block_info.offset_time = sample_time.offset_time;
-    info.block_info.sample_time = sample_time.sample_time;
-    info.block_info.path = std::string(S->path);
+    info.block.offset_time = sample_time.offset_time;
+    info.block.sample_time = sample_time.sample_time;
+    info.block.path = std::string(S->path);
 
     for (auto &ip : input_ports) {
       message::port_info port_info;
@@ -192,7 +259,7 @@ class rx_remote_block : public rx_block {
       std::vector<int> dims;
       dims.assign(ip->dims.begin(), ip->dims.end());
       port_info.dimensions = dims;
-      info.input_port_info.emplace_back(port_info);
+      info.input_ports.emplace_back(port_info);
     }
     for (auto &op : output_ports) {
       message::port_info port_info;
@@ -202,21 +269,24 @@ class rx_remote_block : public rx_block {
       std::vector<int> dims;
       dims.assign(op->dims.begin(), op->dims.end());
       port_info.dimensions = dims;
-      info.output_port_info.emplace_back(port_info);
+      info.output_ports.emplace_back(port_info);
     }
     packer.pack(info);
-    session->send(ss.str().data(), ss.str().length());
+    return ss.str();
   }
 
+  /// update output port from remote client
+  /// \param object
   void update_from_remote(msgpack::object &object) {
     std::string name;
     auto identifier_and_data = object.as<std::vector<msgpack::object>>();
     std::shared_ptr<port_base> target_port;
+    auto &identifier = identifier_and_data[0];
 
-    switch (identifier_and_data[0].type) {
+    switch (identifier.type) {
       case msgpack::type::STR: {
         // by name
-        name = object.as<std::string>();
+        name = identifier.as<std::string>();
         if (remote_output_port_registry.count(name) == 0) {
           throw std::runtime_error(
               fmt::format("name: {} is not registered", name));
@@ -227,7 +297,7 @@ class rx_remote_block : public rx_block {
       case msgpack::type::NEGATIVE_INTEGER:
       case msgpack::type::POSITIVE_INTEGER: {
         // by id
-        auto id = object.as<int64_t>();
+        auto id = identifier.as<int64_t>();
         auto it = std::find_if(remote_output_port_registry.begin(),
                                remote_output_port_registry.end(),
                                [&](auto p) { return p.second->id == id; });
@@ -256,14 +326,10 @@ class rx_remote_block : public rx_block {
     target_port->from(data.data());
   }
 
+  /// process the object_handle from remote
+  /// \param message
   void handle_incoming_message(std::shared_ptr<rx_msgpack_object> message) {
     // stop processing the message if the sender is already destroyed
-    auto sender_weak = message->session;
-    auto sender = sender_weak.lock();
-    if (!sender) {
-      return;
-    }
-
     auto object = message->object_handle->get();
     try {
       auto outer_wrapper = object.as<std::vector<msgpack::object>>();
@@ -271,7 +337,7 @@ class rx_remote_block : public rx_block {
       auto intention = outer_wrapper[0].as<std::string>();
 
       if (intention == "query_info") {
-        send_info(sender);
+        send(message->session, make_info_response());
       } else if (intention == "value") {
         // will have one extra parameter
         update_from_remote(outer_wrapper[1]);
@@ -281,6 +347,7 @@ class rx_remote_block : public rx_block {
 
     } catch (std::exception &e) {
       log("error", e.what());
+      send(message->session, make_error(e.what()));
     }
   }
 };

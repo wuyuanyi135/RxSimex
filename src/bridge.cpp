@@ -166,7 +166,7 @@ extern "C" void mdlTerminate(SimStruct *S) {
     if (block) {
         block->on_terminate();
     }
-    simex::rx_block::destory_instance();
+    simex::rx_block::destroy_instance();
 }
 
 #define MDL_UPDATE

@@ -1,12 +1,10 @@
-//
+//<<<<<<< HEAD
 // Created by wuyuanyi on 2019-09-26.
 //
 
 #ifndef RXSIMEX_H5_MEMORY_FILE_H
 #define RXSIMEX_H5_MEMORY_FILE_H
 #ifdef ENABLE_HDF5
-=======
->>>>>>> b1c3bee... switch dev env
 #include <highfive/H5PropertyList.hpp>
 #include <hdf5.h>
 
@@ -26,6 +24,5 @@ inline void h5_get_buffer(hid_t id, std::vector<uint8_t> &buf) {
     H5Fget_file_image(id, buf.data(), sz);
 }
 }
-<<<<<<< HEAD
 #endif
 #endif //RXSIMEX_H5_MEMORY_FILE_H

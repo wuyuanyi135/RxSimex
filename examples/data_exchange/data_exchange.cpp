@@ -13,10 +13,10 @@ class data_exchange : public simex::rx_remote_block {
     out1 = register_output_port<double>("out1", {1}, false, false);
     out2 = register_output_port<double>("out2", {3,4}, false, false);
 
-    set_remote_accessible_port(std::dynamic_pointer_cast<simex::port_base>(in1), true);
-    set_remote_accessible_port(std::dynamic_pointer_cast<simex::port_base>(in2), true);
-    set_remote_accessible_port(std::dynamic_pointer_cast<simex::port_base>(out1), false);
-    set_remote_accessible_port(std::dynamic_pointer_cast<simex::port_base>(out2), false);
+    set_remote_accessible_port(std::dynamic_pointer_cast<simex::port_base>(in1));
+    set_remote_accessible_port(std::dynamic_pointer_cast<simex::port_base>(in2));
+    set_remote_accessible_port(std::dynamic_pointer_cast<simex::port_base>(out1));
+    set_remote_accessible_port(std::dynamic_pointer_cast<simex::port_base>(out2));
   }
   std::shared_ptr<simex::port<double>> in1;
   std::shared_ptr<simex::port<double>> in2;
@@ -27,3 +27,4 @@ class data_exchange : public simex::rx_remote_block {
 std::shared_ptr<simex::rx_block> simex::rx_block::create_block(SimStruct *S) {
   return std::make_shared<data_exchange>(S);
 }
+
