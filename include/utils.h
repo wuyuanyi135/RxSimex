@@ -5,6 +5,8 @@
 #ifndef RXSIMEX_UTILS_H
 #define RXSIMEX_UTILS_H
 #include "simstruc.h"
+#include <xtensor/xarray.hpp>
+
 #define XTARRAY_MASK (1U << 31)
 namespace simex {
 template<typename T>

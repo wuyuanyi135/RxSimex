@@ -23,14 +23,7 @@ class rx_block {
   SimStruct *S;
  public:
   explicit rx_block(SimStruct *S) : S(S) {
-      // listening to logging channel
-      logging_channel.get_observable().observe_on(simulink_thread).subscribe(
-          subscriptions,
-          [](std::string str) {
-            ssPrintf(str.c_str());
-          },
-          [](std::exception_ptr ep) {}
-      );
+
   }
   virtual ~rx_block() {
       subscriptions.unsubscribe();
@@ -39,8 +32,8 @@ class rx_block {
  public:
   // internal variables
   // main loop scheduler
-  rxcpp::schedulers::run_loop rl;
-  rxcpp::observe_on_one_worker simulink_thread{rxcpp::observe_on_run_loop(rl)};
+  std::unique_ptr<rxcpp::schedulers::run_loop> rl;
+  std::unique_ptr<rxcpp::observe_on_one_worker> simulink_thread;
   rxcpp::composite_subscription subscriptions;
  public:
   // properties
@@ -112,7 +105,20 @@ class rx_block {
  public:
   // callbacks
   virtual void on_initial_parameter_processed() {}
-  virtual void on_start() {}
+  virtual void on_start() {
+    // initialize event-loop and main thread scheduler
+    rl = std::make_unique<rxcpp::schedulers::run_loop>();
+    simulink_thread = std::make_unique<rxcpp::observe_on_one_worker>(rxcpp::observe_on_run_loop(*rl));
+
+    // listening to logging channel
+    logging_channel.get_observable().observe_on(*simulink_thread).subscribe(
+        subscriptions,
+        [](std::string str) {
+          ssPrintf(str.c_str());
+        },
+        [](std::exception_ptr ep) {}
+    );
+  }
   virtual void on_update() {}
   virtual void on_output() {}
   virtual void on_terminate() {}

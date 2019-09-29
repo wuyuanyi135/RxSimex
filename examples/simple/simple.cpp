@@ -7,7 +7,7 @@
 using namespace std::chrono_literals;
 class simple : public simex::rx_block {
  public:
-  rxcpp::observe_on_one_worker background_thread{rxcpp::observe_on_new_thread()};
+  std::unique_ptr<rxcpp::observe_on_one_worker> background_thread;
 
   explicit simple(SimStruct *s) : rx_block(s) {
       param_gain = register_scalar_parameter<double>("gain", true);
@@ -25,15 +25,18 @@ class simple : public simex::rx_block {
   }
   void on_start() override {
       rx_block::on_start();
+      // run background thread only after started.
+      background_thread = std::make_unique<rxcpp::observe_on_one_worker>(rxcpp::observe_on_new_thread());
+
       auto emitter = rxcpp::observable<>::interval(std::chrono::milliseconds(500));
-      emitter.subscribe_on(background_thread).subscribe(
+      emitter.subscribe_on(*background_thread).subscribe(
           subscriptions,
           [this](int v) {
             log("info", "hello!!!");
           }
       );
 
-      emitter.subscribe_on(background_thread).subscribe(
+      emitter.subscribe_on(*background_thread).subscribe(
           subscriptions,
           [this](int v) {
             out1->data_update.get_subscriber().on_next(xt::ones<double>(out1->dims) * v);
@@ -41,7 +44,7 @@ class simple : public simex::rx_block {
           }
       );
 
-      in1->data_updated.get_observable().subscribe_on(background_thread).subscribe(
+      in1->data_updated.get_observable().subscribe_on(*background_thread).subscribe(
           subscriptions,
           [this](xt::xarray<double> in1_data) {
             std::stringstream sstream;

@@ -2,7 +2,6 @@
 // Created by wuyua on 2019-09-24.
 //
 #include "rx_simex.h"
-#include "xtensor/xview.hpp"
 #include "xtensor/xmath.hpp"
 #include "xtensor/xadapt.hpp"
 #include "simstruc.h"
@@ -149,8 +148,9 @@ extern "C" void mdlOutputs(SimStruct *S, int_T tid) {
     block->on_output();
 
     // in case of direct feed through
-    while (!rl.empty() && rl.peek().when < rl.now()) {
-        rl.dispatch();
+    assert(rl);
+    while (!rl->empty() && rl->peek().when < rl->now()) {
+        rl->dispatch();
     }
 
     for (int i = 0; i < block->output_ports.size(); i++) {
@@ -185,8 +185,9 @@ extern "C" void mdlUpdate(SimStruct *S, int_T tid) {
 
     auto &rl = block->rl;
 
-    while (!rl.empty() && rl.peek().when < rl.now()) {
-        rl.dispatch();
+    assert(rl);
+    while (!rl->empty() && rl->peek().when < rl->now()) {
+        rl->dispatch();
     }
 }
 

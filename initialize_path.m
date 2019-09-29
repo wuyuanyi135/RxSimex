@@ -1,2 +1,2 @@
-addpath( genpath(fullfile('cmake-build-debug', 'examples')));
+addpath( genpath(fullfile('build', 'examples')));
 addpath( genpath('examples'));

@@ -3,9 +3,13 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <libraryRoots>
+      <file path="$PROJECT_DIR$/include/HighFive" />
       <file path="$PROJECT_DIR$/include/RxCpp" />
+      <file path="$PROJECT_DIR$/include/brynet" />
       <file path="$PROJECT_DIR$/include/fmt" />
+      <file path="$PROJECT_DIR$/include/msgpack-c" />
       <file path="$PROJECT_DIR$/include/xtensor" />
+      <file path="$PROJECT_DIR$/include/xtensor-io" />
       <file path="$PROJECT_DIR$/include/xtl" />
     </libraryRoots>
   </component>
