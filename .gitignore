@@ -1,3 +1,5 @@
 cmake-build-*
 build
 *.autosave
+*.pyc
+__pycache__
