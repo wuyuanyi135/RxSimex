@@ -50,7 +50,7 @@ class simple : public simex::rx_block {
             std::stringstream sstream;
             sstream << in1_data;
             log("info", sstream.str());
-              out3->data_update.get_subscriber().on_next(xt::sum<double>(in1_data) * param_gain->parameter_updated.get_value());
+              out3->data_update.get_subscriber().on_next(xt::sum<double>(in1_data) * param_gain->data);
           }
       );
 
