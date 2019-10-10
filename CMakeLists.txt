@@ -36,7 +36,7 @@ if (WIN32)
     add_compile_definitions(_WIN32_WINNT=0x0601)
 endif ()
 
-file(GLOB_RECURSE RXSIMEX_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c src/*.cpp)
+file(GLOB_RECURSE RXSIMEX_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c ${CMAKE_CURRENT_LIST_DIR}/src/*.cpp)
 file(GLOB FMT_SOURCES ${CMAKE_CURRENT_LIST_DIR}/include/fmt/src/*.cc)
 
 set(_SOURCES ${RXSIMEX_SOURCES} ${FMT_SOURCES})
