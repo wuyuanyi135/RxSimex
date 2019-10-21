@@ -61,7 +61,8 @@ struct port_value {
   std::string name;
   int id{};
   std::string data;
-  MSGPACK_DEFINE_MAP(name, id, data);
+  int type_id;
+  MSGPACK_DEFINE_MAP(name, id, data, type_id);
 };
 }  // namespace message
 
@@ -271,6 +272,7 @@ class rx_remote_block : public rx_block {
       message::port_value pv;
       pv.id = p->id;
       pv.name = p->name;
+      pv.type_id = p->type_id;
       pv.data.resize(p->get_width());
       p->to(pv.data.data());
       data.emplace_back(pv);
