@@ -24,7 +24,7 @@ class rx_block {
 
  public:
   explicit rx_block(SimStruct *S) : S(S) {}
-  virtual ~rx_block() { subscriptions.unsubscribe(); }
+  virtual ~rx_block() {}
 
  public:
   ///# Rx internal
@@ -174,7 +174,13 @@ class rx_block {
 
   /// Called when simulation is stopped or fatal error occured. Resources may be
   /// explicitly released in this callback.
-  virtual void on_terminate() { is_started = false; }
+  virtual void on_terminate() {
+    is_started = false;
+    subscriptions.unsubscribe();
+    // must explicitly released. Otherwise the next creation will fail
+    rl.reset(nullptr);
+    simulink_thread.reset(nullptr);
+  }
 
   /// Called when tunable parameter got updated. Should check is_started flag.
   virtual void on_parameter_updated() {}
