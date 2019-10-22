@@ -62,7 +62,8 @@ struct port_value {
   int id{};
   std::string data;
   int type_id;
-  MSGPACK_DEFINE_MAP(name, id, data, type_id);
+  std::vector<int> dimensions;
+  MSGPACK_DEFINE_MAP(name, id, data, type_id, dimensions);
 };
 }  // namespace message
 
@@ -273,6 +274,8 @@ class rx_remote_block : public rx_block {
       pv.id = p->id;
       pv.name = p->name;
       pv.type_id = p->type_id;
+      pv.dimensions = std::vector<int>();
+      pv.dimensions.assign(p->dims.begin(), p->dims.end());
       pv.data.resize(p->get_width());
       p->to(pv.data.data());
       data.emplace_back(pv);
