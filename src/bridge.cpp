@@ -29,7 +29,6 @@ void mdlCheckParameters(SimStruct *S) {
 extern "C" void mdlInitializeSizes(SimStruct *S) {
   auto block = simex::rx_block::get_instance(S, true);
   ssSetOptions(S, block->options);
-
   ssSetNumSFcnParams(S, static_cast<int_T>(block->dialog_params.size()));
   if (ssGetNumSFcnParams(S) == ssGetSFcnParamsCount(S)) {
     mdlCheckParameters(S);
